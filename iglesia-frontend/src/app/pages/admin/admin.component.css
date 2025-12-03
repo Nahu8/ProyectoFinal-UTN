@@ -1,0 +1,23 @@
+/* Admin component styles - Responsive sidebar fix */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+aside {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop breakpoint: Always show sidebar */
+@media (min-width: 768px) {
+  aside {
+    position: relative !important;
+    transform: translateX(0) !important;
+    top: auto !important;
+    left: auto !important;
+  }
+}

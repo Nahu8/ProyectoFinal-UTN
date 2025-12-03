@@ -1,0 +1,524 @@
+<div class="space-y-8">
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-bold text-white mb-2">📅 Administrar Días de Reunión</h2>
+            <p class="text-gray-400">Gestiona eventos del calendario y reuniones recurrentes</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <button (click)="sortEventsByDate()"
+                class="px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-gray-300 rounded-lg transition-all flex items-center gap-2">
+                <span>📊</span>
+                Ordenar por fecha
+            </button>
+            <button (click)="saveAll()"
+                class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                <span>💾</span>
+                Guardar Todo
+            </button>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+            <div class="text-3xl font-bold text-white mb-2">{{ eventsArray.length }}</div>
+            <div class="text-gray-400">Eventos programados</div>
+        </div>
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+            <div class="text-3xl font-bold text-white mb-2">{{ meetingsArray.length }}</div>
+            <div class="text-gray-400">Reuniones recurrentes</div>
+        </div>
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+            <div class="text-3xl font-bold text-white mb-2">{{ getUpcomingEventsCount() }}</div>
+            <div class="text-gray-400">Próximos eventos</div>
+        </div>
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+            <div class="text-3xl font-bold text-white mb-2">{{ getUniqueDaysCount() }}</div>
+            <div class="text-gray-400">Días activos</div>
+        </div>
+    </div>
+
+    <!-- Sección 1: Configuración de Eventos -->
+    <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div
+                class="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">⚙️</span>
+            </div>
+            <h3 class="text-xl font-semibold text-white">Configuración de Eventos</h3>
+        </div>
+
+        <form [formGroup]="eventSettingsForm" (ngSubmit)="saveEventSettings()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 text-sm font-medium">
+                            <input type="checkbox" formControlName="showPastEvents" class="rounded">
+                            Mostrar eventos pasados
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 text-sm font-medium">
+                            <input type="checkbox" formControlName="showEventCountdown" class="rounded">
+                            Mostrar cuenta regresiva
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 text-sm font-medium">
+                            <input type="checkbox" formControlName="enableEventRegistration" class="rounded">
+                            Habilitar registro de eventos
+                        </label>
+                    </div>
+                    <div>
+                        <label class="flex items-center gap-2 text-gray-300 mb-2 text-sm font-medium">
+                            <input type="checkbox" formControlName="emailNotifications" class="rounded">
+                            Notificaciones por email
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2 text-sm font-medium">Color predeterminado</label>
+                        <input type="color" formControlName="defaultEventColor"
+                            class="w-full h-12 rounded-lg cursor-pointer border border-gray-600">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2 text-sm font-medium">Duración predeterminada
+                            (minutos)</label>
+                        <input type="number" formControlName="defaultEventDuration"
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2 text-sm font-medium">Recordatorio (días antes)</label>
+                        <input type="number" formControlName="reminderDaysBefore" min="0" max="7"
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-gray-800">
+                <button type="submit"
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    💾 Guardar Configuración
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sección 2: Eventos del Calendario -->
+    <div id="events-section" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div
+                class="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">📅</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white">Eventos del Calendario</h3>
+                <p class="text-gray-400 text-sm mt-1">Eventos específicos con fecha y hora definidas</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <label
+                    class="px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-gray-300 rounded-lg cursor-pointer transition-all flex items-center gap-2">
+                    <span>📥</span>
+                    Importar JSON
+                    <input type="file" (change)="importEvents($event)" accept=".json" class="hidden">
+                </label>
+                <button (click)="exportEvents()"
+                    class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+                    <span>📤</span>
+                    Exportar JSON
+                </button>
+            </div>
+        </div>
+
+        <form [formGroup]="calendarEventsForm" (ngSubmit)="saveCalendarEvents()" class="space-y-6">
+            <!-- Configuración de la sección -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título de la Sección *</label>
+                    <input type="text" formControlName="sectionTitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo de la Sección</label>
+                    <input type="text" formControlName="sectionSubtitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <!-- Lista de eventos -->
+            <div formArrayName="events" class="space-y-6">
+                <div *ngFor="let event of eventsArray.controls; let i = index"
+                    class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-colors">
+                    <div [formGroupName]="i" class="space-y-6">
+                        <!-- Encabezado del evento -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">{{
+                                    i + 1 }}</span>
+                                Evento {{ i + 1 }}
+                                <span *ngIf="event.get('date')?.value" class="text-gray-400 text-sm ml-2">
+                                    ({{ formatDateForDisplay(event.get('date')?.value) }})
+                                </span>
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <button type="button" (click)="duplicateEvent(i)"
+                                    class="px-3 py-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1">
+                                    <span>📋</span>
+                                    Duplicar
+                                </button>
+                                <button type="button" (click)="removeEvent(i)"
+                                    class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm font-medium transition-colors">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Contenido del evento -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Columna izquierda -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título del Evento
+                                        *</label>
+                                    <input type="text" formControlName="title"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Santa Cena">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Descripción *</label>
+                                    <textarea formControlName="description" rows="4"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Descripción detallada del evento..."></textarea>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Fecha *</label>
+                                        <input type="date" formControlName="date"
+                                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Hora *</label>
+                                        <input type="time" formControlName="time"
+                                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Ubicación *</label>
+                                    <input type="text" formControlName="location"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Templo Principal">
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Tipo de Evento
+                                            *</label>
+                                        <select formControlName="type"
+                                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                            <option *ngFor="let type of eventTypes" [value]="type.value">{{ type.icon }}
+                                                {{ type.label }}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Ícono</label>
+                                        <select formControlName="icon"
+                                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                            <option *ngFor="let icon of eventIcons" [value]="icon.value">{{ icon.value
+                                                }} {{ icon.label }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-gray-300 mb-2 text-sm font-medium">Participantes/Expositores</label>
+                                    <input type="text" formControlName="speakers"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Separados por coma">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Enlace de
+                                        Registro</label>
+                                    <input type="url" formControlName="registrationLink"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="https://...">
+                                </div>
+
+                                <!-- Colores del evento -->
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Colores del
+                                        Evento</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-300 mb-2 text-xs font-medium">Color
+                                                desde</label>
+                                            <div class="flex gap-2">
+                                                <input type="color" formControlName="colorFrom"
+                                                    class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                                                <input type="text" formControlName="colorFrom"
+                                                    class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-300 mb-2 text-xs font-medium">Color
+                                                hasta</label>
+                                            <div class="flex gap-2">
+                                                <input type="color" formControlName="colorTo"
+                                                    class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                                                <input type="text" formControlName="colorTo"
+                                                    class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Presets de colores -->
+                                    <div class="mt-3">
+                                        <label class="block text-gray-300 mb-2 text-xs font-medium">Presets
+                                            rápidos:</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button *ngFor="let preset of colorPresets; let pi = index" type="button"
+                                                (click)="applyColorPreset(i, pi)"
+                                                class="px-2 py-1 text-xs rounded border border-gray-600 hover:border-blue-500 transition-colors"
+                                                [style.background]="'linear-gradient(90deg, ' + preset.from + ', ' + preset.to + ')'">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista previa del evento -->
+                        <div class="mt-4 pt-4 border-t border-gray-700">
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Vista previa:</label>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+                                        [style.background]="'linear-gradient(135deg, ' + event.get('colorFrom')?.value + ', ' + event.get('colorTo')?.value + ')'">
+                                        {{ event.get('icon')?.value }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="font-semibold text-white">{{ event.get('title')?.value || 'Título
+                                                del evento' }}</h4>
+                                            <span class="px-2 py-1 text-xs rounded"
+                                                [style.background]="'linear-gradient(135deg, ' + event.get('colorFrom')?.value + ', ' + event.get('colorTo')?.value + ')'"
+                                                [style.color]="'white'">
+                                                {{ getEventTypeLabel(event.get('type')?.value) }}
+                                            </span>
+                                        </div>
+                                        <p class="text-gray-300 text-sm mt-1">
+                                            📅 {{ event.get('date')?.value ?
+                                            formatDateForDisplay(event.get('date')?.value) : 'Fecha' }}
+                                            • 🕐 {{ event.get('time')?.value || '19:00' }}
+                                            • 📍 {{ event.get('location')?.value || 'Ubicación' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button type="button" (click)="addEvent()"
+                    class="px-5 py-2.5 bg-gradient-to-r from-blue-900/50 to-cyan-900/50 hover:from-blue-900/70 hover:to-cyan-900/70 text-blue-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <span>+</span>
+                    Agregar Evento
+                </button>
+                <button type="submit" [disabled]="!calendarEventsForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Eventos
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sección 3: Reuniones Recurrentes -->
+    <div id="meetings-section" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div
+                class="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">🔄</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white">Reuniones Recurrentes</h3>
+                <p class="text-gray-400 text-sm mt-1">Reuniones que se repiten semanalmente</p>
+            </div>
+        </div>
+
+        <form [formGroup]="recurringMeetingsForm" (ngSubmit)="saveRecurringMeetings()" class="space-y-6">
+            <!-- Configuración de la sección -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título de la Sección *</label>
+                    <input type="text" formControlName="sectionTitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo de la Sección</label>
+                    <input type="text" formControlName="sectionSubtitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <!-- Lista de reuniones -->
+            <div formArrayName="meetings" class="space-y-6">
+                <div *ngFor="let meeting of meetingsArray.controls; let i = index"
+                    class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-colors">
+                    <div [formGroupName]="i" class="space-y-6">
+                        <!-- Encabezado de la reunión -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs">{{
+                                    i + 1 }}</span>
+                                Reunión {{ i + 1 }}
+                                <span class="text-gray-400 text-sm ml-2">({{ meeting.get('day')?.value || 'Día'
+                                    }})</span>
+                            </h3>
+                            <button type="button" (click)="removeMeeting(i)"
+                                class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm font-medium transition-colors">
+                                Eliminar
+                            </button>
+                        </div>
+
+                        <!-- Contenido de la reunión -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Columna izquierda -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Día de la semana
+                                        *</label>
+                                    <select formControlName="day"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                        <option *ngFor="let day of daysOfWeek" [value]="day.value">{{ day.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título *</label>
+                                    <input type="text" formControlName="title"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: SLR - Servicio y Estudio">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Hora *</label>
+                                    <input type="time" formControlName="time"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Nota/Descripción</label>
+                                    <input type="text" formControlName="note"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Reunión de estudio bíblico y oración">
+                                </div>
+
+                                <!-- Colores de la reunión -->
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Colores de la
+                                        Reunión</label>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-300 mb-2 text-xs font-medium">Color
+                                                desde</label>
+                                            <div class="flex gap-2">
+                                                <input type="color" formControlName="colorFrom"
+                                                    class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                                                <input type="text" formControlName="colorFrom"
+                                                    class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-300 mb-2 text-xs font-medium">Color
+                                                hasta</label>
+                                            <div class="flex gap-2">
+                                                <input type="color" formControlName="colorTo"
+                                                    class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                                                <input type="text" formControlName="colorTo"
+                                                    class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Presets de colores -->
+                                    <div class="mt-3">
+                                        <label class="block text-gray-300 mb-2 text-xs font-medium">Presets
+                                            rápidos:</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button *ngFor="let preset of colorPresets; let pi = index" type="button"
+                                                (click)="applyMeetingColorPreset(i, pi)"
+                                                class="px-2 py-1 text-xs rounded border border-gray-600 hover:border-purple-500 transition-colors"
+                                                [style.background]="'linear-gradient(90deg, ' + preset.from + ', ' + preset.to + ')'">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista previa de la reunión -->
+                        <div class="mt-4 pt-4 border-t border-gray-700">
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Vista previa:</label>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                                        [style.background]="'linear-gradient(135deg, ' + meeting.get('colorFrom')?.value + ', ' + meeting.get('colorTo')?.value + ')'">
+                                        {{ meeting.get('day')?.value?.substring(0, 3) || 'Día' }}
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-semibold text-white">{{ meeting.get('title')?.value || 'Título
+                                            de la reunión' }}</h4>
+                                        <p class="text-gray-300 text-sm mt-1">
+                                            🕐 {{ meeting.get('time')?.value || '19:00' }}
+                                            • 📝 {{ meeting.get('note')?.value || 'Sin descripción' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button type="button" (click)="addMeeting()"
+                    class="px-5 py-2.5 bg-gradient-to-r from-purple-900/50 to-pink-900/50 hover:from-purple-900/70 hover:to-pink-900/70 text-purple-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <span>+</span>
+                    Agregar Reunión
+                </button>
+                <button type="submit" [disabled]="!recurringMeetingsForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Reuniones
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast de notificación -->
+    <div *ngIf="showToast" class="fixed bottom-4 right-4 z-50 animate-slideIn">
+        <div
+            class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-lg shadow-xl border border-green-500/30 flex items-center gap-3">
+            <span class="text-xl">✅</span>
+            <div>
+                <p class="font-medium">{{ toastMessage }}</p>
+                <p class="text-green-100 text-sm">Los cambios han sido actualizados</p>
+            </div>
+            <button type="button" (click)="showToast = false" class="ml-4 text-green-100 hover:text-white">
+                <span class="text-xl">×</span>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,26 @@
+<section class="py-16 bg-black text-white">
+  <div class="container mx-auto px-6">
+    <div #mdHeader class="text-center mb-10" data-meet-header="true">
+      <h2 class="text-3xl md:text-4xl font-black mb-2">DÍAS DE REUNIÓN</h2>
+      <p class="text-gray-300">Próximas reuniones y horarios — mantente al tanto.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div #mdCard *ngFor="let m of meetings; index as i" class="meeting-card bg-gray-900 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+        <div class="h-40 bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+          <div class="text-center">
+            <div class="text-2xl">{{ m.day }}</div>
+            <div class="text-sm">{{ m.title }}</div>
+          </div>
+        </div>
+        <div class="p-4 bg-gray-900">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-white font-semibold">{{ m.time }}</div>
+            <div class="text-sm text-gray-300">{{ m.note }}</div>
+          </div>
+          <div class="text-sm text-gray-400">Ubicación: Iglesia principal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

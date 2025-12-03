@@ -1,0 +1,99 @@
+<div class="flex h-screen bg-black text-white">
+  <!-- Sidebar - v2 Fixed layout -->
+  <aside
+    class="w-64 bg-gray-900 border-r border-gray-800 flex-shrink-0 fixed inset-y-0 left-0 transform transition-transform duration-300 z-40 md:relative md:transform-none md:inset-auto"
+    [class.translate-x-0]="sidebarOpen" [class.-translate-x-full]="!sidebarOpen">
+    <div class="flex items-center justify-between h-16 px-6 border-b border-gray-800">
+      <h2 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Admin
+        Panel</h2>
+      <button (click)="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="p-6 space-y-2">
+      <button (click)="selectSection('home')" [class.bg-indigo-600]="activeSection === 'home'"
+        [class.bg-gray-800]="activeSection !== 'home'" class="w-full text-left px-4 py-2 rounded-lg transition-colors">
+        🏠 HOME
+      </button>
+      <button (click)="selectSection('ministries')" [class.bg-indigo-600]="activeSection === 'ministries'"
+        [class.bg-gray-800]="activeSection !== 'ministries'"
+        class="w-full text-left px-4 py-2 rounded-lg transition-colors">
+        🎯 Ministerios
+      </button>
+      <button (click)="selectSection('events')" [class.bg-indigo-600]="activeSection === 'events'"
+        [class.bg-gray-800]="activeSection !== 'events'"
+        class="w-full text-left px-4 py-2 rounded-lg transition-colors">
+        📅 Días de Reunión
+      </button>
+      <button (click)="selectSection('contact')" [class.bg-indigo-600]="activeSection === 'contact'"
+        [class.bg-gray-800]="activeSection !== 'contact'"
+        class="w-full text-left px-4 py-2 rounded-lg transition-colors">
+        📧 Contacto
+      </button>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6 pt-6 border-t border-gray-800">
+      <button (click)="logout()"
+        class="w-full px-4 py-2 bg-red-900 hover:bg-red-800 rounded-lg transition-colors text-sm font-medium">
+        🚪 Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col w-full md:w-auto">
+    <!-- Top Bar -->
+    <header class="bg-gray-900 border-b border-gray-800 h-16 flex items-center px-6 sticky top-0 z-30">
+      <button (click)="toggleSidebar()" class="md:hidden mr-4 text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <div class="flex-1">
+        <h1 class="text-2xl font-bold text-white">ÉL VIVE IGLESIA</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="text-gray-300">{{ currentUser?.name }}</span>
+        <span class="px-3 py-1 bg-indigo-600 rounded-full text-xs font-medium">{{ currentUser?.role }}</span>
+        <button *ngIf="hasChanges" (click)="publishChanges()"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors text-sm">
+          🚀 Publicar cambios
+        </button>
+      </div>
+    </header>
+
+    <!-- Success Message -->
+    <div *ngIf="publishSuccess" class="bg-green-900 border border-green-700 text-green-200 px-6 py-3 text-center">
+      ✅ Cambios publicados exitosamente
+    </div>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-auto p-6">
+      <!-- Dashboard Section -->
+      <div *ngIf="activeSection === 'home'">
+        <app-admin-home></app-admin-home>
+      </div>
+
+      <!-- Ministries Section -->
+      <div *ngIf="activeSection === 'ministries'">
+        <app-admin-ministerios></app-admin-ministerios>
+      </div>
+
+      <!-- Events Section -->
+      <div *ngIf="activeSection === 'events'">
+        <app-admin-dias-reunion></app-admin-dias-reunion>
+      </div>
+
+      <!-- Contact Section -->
+      <div *ngIf="activeSection === 'contact'">
+        <app-admin-contacto></app-admin-contacto>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div *ngIf="sidebarOpen" (click)="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 md:hidden z-30"></div>
+</div>

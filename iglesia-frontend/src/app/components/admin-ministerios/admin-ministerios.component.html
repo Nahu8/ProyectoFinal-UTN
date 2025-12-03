@@ -1,0 +1,796 @@
+<div class="space-y-8">
+  <!-- Encabezado con navegación por pestañas -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h2 class="text-3xl font-bold text-white mb-2">🎯 Administración de Ministerios</h2>
+      <p class="text-gray-400">Gestiona completamente la sección de ministerios de tu iglesia</p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button (click)="togglePreviewMode()"
+        class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all flex items-center gap-2">
+        <span *ngIf="!isPreviewMode">👁️</span>
+        <span *ngIf="isPreviewMode">✏️</span>
+        {{ isPreviewMode ? 'Editar' : 'Vista Previa' }}
+      </button>
+
+      <label
+        class="px-4 py-2 bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-gray-300 rounded-lg cursor-pointer transition-all flex items-center gap-2">
+        <span>📥</span>
+        Importar
+        <input type="file" (change)="importData($event)" accept=".json" class="hidden">
+      </label>
+
+      <button (click)="exportData()"
+        class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+        <span>📤</span>
+        Exportar
+      </button>
+
+      <button (click)="saveAll()"
+        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+        <span>💾</span>
+        Guardar Todo
+      </button>
+    </div>
+  </div>
+
+  <!-- Pestañas de navegación -->
+  <div class="border-b border-gray-800">
+    <nav class="flex flex-wrap gap-2">
+      <button (click)="switchTab('hero')" [class.bg-indigo-900]="activeTab === 'hero'"
+        [class.bg-gray-800]="activeTab !== 'hero'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>🏆</span>
+        Hero
+      </button>
+
+      <button (click)="switchTab('content')" [class.bg-indigo-900]="activeTab === 'content'"
+        [class.bg-gray-800]="activeTab !== 'content'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>📝</span>
+        Contenido
+      </button>
+
+      <button (click)="switchTab('ministries')" [class.bg-indigo-900]="activeTab === 'ministries'"
+        [class.bg-gray-800]="activeTab !== 'ministries'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>🎯</span>
+        Ministerios ({{ ministriesArray.length }})
+      </button>
+
+      <button (click)="switchTab('statistics')" [class.bg-indigo-900]="activeTab === 'statistics'"
+        [class.bg-gray-800]="activeTab !== 'statistics'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>📊</span>
+        Estadísticas
+      </button>
+
+      <button (click)="switchTab('process')" [class.bg-indigo-900]="activeTab === 'process'"
+        [class.bg-gray-800]="activeTab !== 'process'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>🔄</span>
+        Proceso
+      </button>
+
+      <button (click)="switchTab('testimonials')" [class.bg-indigo-900]="activeTab === 'testimonials'"
+        [class.bg-gray-800]="activeTab !== 'testimonials'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>💬</span>
+        Testimonios ({{ testimonialsArray.length }})
+      </button>
+
+      <button (click)="switchTab('faq')" [class.bg-indigo-900]="activeTab === 'faq'"
+        [class.bg-gray-800]="activeTab !== 'faq'"
+        class="px-4 py-2 rounded-t-lg transition-colors flex items-center gap-2">
+        <span>❓</span>
+        Preguntas Frecuentes ({{ faqsArray.length }})
+      </button>
+    </nav>
+  </div>
+
+  <!-- Panel de estadísticas rápidas -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+      <div class="text-3xl font-bold text-white mb-2">{{ getActiveMinistriesCount() }}/{{ ministriesArray.length }}
+      </div>
+      <div class="text-gray-400">Ministerios activos</div>
+    </div>
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+      <div class="text-3xl font-bold text-white mb-2">{{ getTotalVolunteers() }}</div>
+      <div class="text-gray-400">Voluntarios totales</div>
+    </div>
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+      <div class="text-3xl font-bold text-white mb-2">{{ getFeaturedMinistriesCount() }}</div>
+      <div class="text-gray-400">Con eventos especiales</div>
+    </div>
+    <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700">
+      <div class="text-3xl font-bold text-white mb-2">{{ getAverageRating() }}/5</div>
+      <div class="text-gray-400">Rating promedio</div>
+    </div>
+  </div>
+
+  <!-- Contenido según pestaña activa -->
+  <div class="space-y-8">
+
+    <!-- Pestaña: Hero Section -->
+    <div *ngIf="activeTab === 'hero'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div
+          class="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <span class="text-white">🏆</span>
+        </div>
+        <h3 class="text-xl font-semibold text-white">Hero Section</h3>
+      </div>
+
+      <form [formGroup]="heroForm" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Texto del Badge *</label>
+            <input type="text" formControlName="badgeText"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+          </div>
+
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Título Principal *</label>
+            <input type="text" formControlName="title"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo *</label>
+          <textarea formControlName="subtitle" rows="3"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white"></textarea>
+        </div>
+
+        <!-- Botones CTA -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-gray-800/50 rounded-lg p-4">
+            <label class="block text-gray-300 mb-3 text-sm font-medium">Botón CTA 1</label>
+            <div class="space-y-3">
+              <input type="text" formControlName="ctaButton1.text" placeholder="Texto"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              <input type="text" formControlName="ctaButton1.link" placeholder="Link"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              <input type="text" formControlName="ctaButton1.icon" placeholder="Ícono"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+          </div>
+
+          <div class="bg-gray-800/50 rounded-lg p-4">
+            <label class="block text-gray-300 mb-3 text-sm font-medium">Botón CTA 2</label>
+            <div class="space-y-3">
+              <input type="text" formControlName="ctaButton2.text" placeholder="Texto"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              <input type="text" formControlName="ctaButton2.link" placeholder="Link"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              <input type="text" formControlName="ctaButton2.icon" placeholder="Ícono"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+            </div>
+          </div>
+        </div>
+
+        <!-- Gradiente de fondo -->
+        <div class="bg-gray-800/50 rounded-lg p-4">
+          <label class="block text-gray-300 mb-3 text-sm font-medium">Gradiente de Fondo</label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-gray-300 mb-2 text-xs font-medium">Desde</label>
+              <div class="flex gap-2">
+                <input type="color" [value]="heroForm.get('backgroundGradient.from')?.value"
+                  (change)="onHeroColorChange('from', $event)"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                <input type="text" formControlName="backgroundGradient.from"
+                  class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-xs font-medium">Intermedio</label>
+              <div class="flex gap-2">
+                <input type="color" [value]="heroForm.get('backgroundGradient.via')?.value"
+                  (change)="onHeroColorChange('via', $event)"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                <input type="text" formControlName="backgroundGradient.via"
+                  class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-xs font-medium">Hasta</label>
+              <div class="flex gap-2">
+                <input type="color" [value]="heroForm.get('backgroundGradient.to')?.value"
+                  (change)="onHeroColorChange('to', $event)"
+                  class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                <input type="text" formControlName="backgroundGradient.to"
+                  class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="block text-gray-300 mb-2 text-xs font-medium">Presets rápidos:</label>
+            <div class="flex flex-wrap gap-2">
+              <button *ngFor="let preset of colorPresets; let i = index" type="button"
+                (click)="applyColorPreset('hero', i)"
+                class="px-3 py-1 text-xs rounded border border-gray-600 hover:border-blue-500 transition-colors text-white"
+                [style.background]="'linear-gradient(90deg, ' + preset.from + ', ' + preset.to + ')'">
+                {{ preset.name }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista previa del Hero -->
+        <div class="mt-4 pt-4 border-t border-gray-700">
+          <label class="block text-gray-300 mb-2 text-sm font-medium">Vista previa:</label>
+          <div class="bg-gray-900 rounded-lg p-6"
+            [style.background]="'linear-gradient(135deg, ' + heroForm.value.backgroundGradient?.from + ', ' + heroForm.value.backgroundGradient?.via + ', ' + heroForm.value.backgroundGradient?.to + ')'">
+            <div class="text-center max-w-2xl mx-auto">
+              <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full mb-4">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span class="text-sm text-white">{{ heroForm.value.badgeText }}</span>
+              </div>
+
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">{{ heroForm.value.title }}</h2>
+              <p class="text-gray-200 mb-6">{{ heroForm.value.subtitle }}</p>
+
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  class="px-6 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors flex items-center gap-2">
+                  <span>{{ heroForm.value.ctaButton1?.icon }}</span>
+                  <span>{{ heroForm.value.ctaButton1?.text }}</span>
+                </button>
+                <button
+                  class="px-6 py-3 bg-black/30 hover:bg-black/40 text-white rounded-lg transition-colors flex items-center gap-2">
+                  <span>{{ heroForm.value.ctaButton2?.icon }}</span>
+                  <span>{{ heroForm.value.ctaButton2?.text }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pestaña: Contenido de Página -->
+    <div *ngIf="activeTab === 'content'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+          <span class="text-white">📝</span>
+        </div>
+        <h3 class="text-xl font-semibold text-white">Contenido de Página</h3>
+      </div>
+
+      <form [formGroup]="pageContentForm" class="space-y-6">
+        <!-- Títulos y subtítulos de cada sección -->
+        <div *ngFor="let section of [
+          { key: 'ministries', label: 'Sección de Ministerios', title: 'ministriesTitle', subtitle: 'ministriesSubtitle' },
+          { key: 'process', label: 'Sección de Proceso', title: 'processTitle', subtitle: 'processSubtitle' },
+          { key: 'testimonials', label: 'Sección de Testimonios', title: 'testimonialsTitle', subtitle: 'testimonialsSubtitle' },
+          { key: 'faq', label: 'Sección de Preguntas Frecuentes', title: 'faqTitle', subtitle: 'faqSubtitle' },
+          { key: 'cta', label: 'Sección Final (CTA)', title: 'ctaTitle', subtitle: 'ctaSubtitle' }
+        ]" class="bg-gray-800/50 rounded-lg p-6">
+          <h4 class="text-lg font-semibold text-white mb-4">{{ section.label }}</h4>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Título</label>
+              <input type="text" [formControlName]="section.title"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+            </div>
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo</label>
+              <input type="text" [formControlName]="section.subtitle"
+                class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+            </div>
+          </div>
+        </div>
+
+        <!-- Badge del CTA -->
+        <div class="bg-gray-800/50 rounded-lg p-6">
+          <h4 class="text-lg font-semibold text-white mb-4">Badge de CTA Final</h4>
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Texto del Badge</label>
+            <input type="text" formControlName="ctaBadgeText"
+              class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pestaña: Ministerios -->
+    <div *ngIf="activeTab === 'ministries'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
+            <span class="text-white">🎯</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-white">Ministerios</h3>
+            <p class="text-gray-400 text-sm">Gestiona todos los ministerios de tu iglesia</p>
+          </div>
+        </div>
+        <button (click)="openMinistryModal()"
+          class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+          <span>➕</span>
+          Agregar Ministerio
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div *ngFor="let ministry of getMinistryControls(); let i = index"
+          class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-colors">
+
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="text-2xl">{{ ministry.get('icon')?.value }}</div>
+                <h4 class="text-lg font-semibold text-white">{{ ministry.get('name')?.value }}</h4>
+              </div>
+
+              <div class="flex items-center gap-2 mb-3">
+                <span class="px-2 py-1 text-xs rounded-full"
+                  [style.background]="'linear-gradient(135deg, ' + ministry.get('colorFrom')?.value + ', ' + ministry.get('colorTo')?.value + ')'">
+                  {{ getStatusLabel(ministry.get('status')?.value) }}
+                </span>
+                <span class="text-gray-400 text-sm">👥 {{ ministry.get('volunteerCount')?.value }} voluntarios</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button (click)="duplicateMinistry(i)"
+                class="p-2 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded-lg transition-colors">
+                📋
+              </button>
+              <button (click)="openMinistryModal(ministry.value)"
+                class="p-2 bg-yellow-900/30 hover:bg-yellow-900/50 text-yellow-400 rounded-lg transition-colors">
+                ✏️
+              </button>
+              <button (click)="deleteMinistry(i)"
+                class="p-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg transition-colors">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <p class="text-gray-300 text-sm mb-4 line-clamp-2">{{ ministry.get('description')?.value }}</p>
+
+          <div class="flex items-center justify-between text-sm text-gray-400">
+            <span>📅 {{ ministry.get('schedule')?.value }}</span>
+            <span>📍 {{ ministry.get('location')?.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="ministriesArray.length === 0" class="text-center py-12">
+        <div class="text-gray-500 mb-4">🎯 No hay ministerios configurados</div>
+        <button (click)="openMinistryModal()"
+          class="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all flex items-center gap-2 mx-auto">
+          <span>➕</span>
+          Crear tu primer ministerio
+        </button>
+      </div>
+    </div>
+
+    <!-- Pestaña: Estadísticas -->
+    <div *ngIf="activeTab === 'statistics'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center">
+            <span class="text-white">📊</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-white">Estadísticas</h3>
+            <p class="text-gray-400 text-sm">Métricas que se muestran en la sección hero</p>
+          </div>
+        </div>
+        <button (click)="openStatisticModal()"
+          class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+          <span>➕</span>
+          Agregar Estadística
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let stat of getStatisticControls(); let i = index"
+          class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-colors text-center">
+
+          <div class="text-3xl font-bold text-white mb-2">{{ stat.get('value')?.value }}</div>
+          <div class="flex items-center justify-center gap-2 text-gray-300 mb-1">
+            <span class="text-xl">{{ stat.get('icon')?.value }}</span>
+            <span>{{ stat.get('label')?.value }}</span>
+          </div>
+
+          <p *ngIf="stat.get('description')?.value" class="text-gray-400 text-xs mt-2">
+            {{ stat.get('description')?.value }}
+          </p>
+
+          <div class="flex justify-center gap-2 mt-4">
+            <button (click)="openStatisticModal(stat.value)"
+              class="px-2 py-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded text-xs">
+              Editar
+            </button>
+            <button (click)="statisticsArray.removeAt(i)"
+              class="px-2 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded text-xs">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestaña: Proceso -->
+    <div *ngIf="activeTab === 'process'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div
+          class="w-10 h-10 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center">
+          <span class="text-white">🔄</span>
+        </div>
+        <h3 class="text-xl font-semibold text-white">Proceso de Unión</h3>
+      </div>
+
+      <form [formGroup]="processForm" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Título *</label>
+            <input type="text" formControlName="title"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+          </div>
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo</label>
+            <input type="text" formControlName="subtitle"
+              class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+          </div>
+        </div>
+
+        <div formArrayName="steps" class="space-y-6">
+          <div *ngFor="let step of getProcessStepControls(); let i = index" [formGroupName]="i"
+            class="bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+
+            <div class="flex items-start gap-6">
+              <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                  [style.background]="'linear-gradient(135deg, ' + step.get('colorFrom')?.value + ', ' + step.get('colorTo')?.value + ')'">
+                  {{ step.get('icon')?.value }}
+                </div>
+              </div>
+
+              <div class="flex-1 space-y-4">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-lg font-semibold text-white">Paso {{ step.get('number')?.value }}</h4>
+                  <button type="button" (click)="processStepsArray.removeAt(i)"
+                    class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm">
+                    Eliminar
+                  </button>
+                </div>
+
+                <div>
+                  <label class="block text-gray-300 mb-2 text-sm font-medium">Título</label>
+                  <input type="text" formControlName="title"
+                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm">
+                </div>
+
+                <div>
+                  <label class="block text-gray-300 mb-2 text-sm font-medium">Descripción</label>
+                  <textarea formControlName="description" rows="2"
+                    class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" (click)="addProcessStep()"
+          class="w-full px-4 py-3 bg-gradient-to-r from-green-900/50 to-emerald-900/50 hover:from-green-900/70 hover:to-emerald-900/70 text-green-300 font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2">
+          <span>➕</span>
+          Agregar Paso
+        </button>
+      </form>
+    </div>
+
+    <!-- Pestaña: Testimonios -->
+    <div *ngIf="activeTab === 'testimonials'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-r from-yellow-600 to-orange-600 rounded-lg flex items-center justify-center">
+            <span class="text-white">💬</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-white">Testimonios</h3>
+            <p class="text-gray-400 text-sm">Historias de transformación</p>
+          </div>
+        </div>
+        <button (click)="openTestimonialModal()"
+          class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+          <span>➕</span>
+          Agregar Testimonio
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div *ngFor="let testimonial of getTestimonialControls(); let i = index"
+          class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-yellow-500/50 transition-colors">
+
+          <div class="flex items-start gap-4 mb-4">
+            <div
+              class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-xl">
+              👤
+            </div>
+            <div class="flex-1">
+              <h4 class="font-bold text-white">{{ testimonial.get('name')?.value }}</h4>
+              <p class="text-gray-400 text-sm">{{ testimonial.get('role')?.value }}</p>
+              <div
+                class="mt-1 px-2 py-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 rounded-full text-xs inline-block">
+                {{ testimonial.get('ministry')?.value }}
+              </div>
+            </div>
+          </div>
+
+          <p class="text-gray-300 text-sm mb-4 italic line-clamp-3">"{{ testimonial.get('content')?.value }}"</p>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-1">
+              <span *ngFor="let star of [1,2,3,4,5]" class="text-sm"
+                [class.text-yellow-400]="star <= testimonial.get('rating')?.value"
+                [class.text-gray-600]="star > testimonial.get('rating')?.value">
+                ★
+              </span>
+            </div>
+
+            <div class="flex gap-2">
+              <button (click)="openTestimonialModal(testimonial.value)"
+                class="px-2 py-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded text-xs">
+                Editar
+              </button>
+              <button (click)="testimonialsArray.removeAt(i)"
+                class="px-2 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded text-xs">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestaña: Preguntas Frecuentes -->
+    <div *ngIf="activeTab === 'faq'" class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-pink-600 to-rose-600 rounded-lg flex items-center justify-center">
+            <span class="text-white">❓</span>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-white">Preguntas Frecuentes</h3>
+            <p class="text-gray-400 text-sm">FAQ de la sección de ministerios</p>
+          </div>
+        </div>
+        <button (click)="openFAQModal()"
+          class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all flex items-center gap-2">
+          <span>➕</span>
+          Agregar Pregunta
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div *ngFor="let faq of getFAQControls(); let i = index"
+          class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-gray-700 hover:border-pink-500/50 transition-colors">
+
+          <div class="flex items-start gap-6">
+            <div class="text-2xl flex-shrink-0">{{ faq.get('icon')?.value }}</div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <h4 class="text-lg font-semibold text-white mb-1">{{ faq.get('question')?.value }}</h4>
+                  <span class="px-2 py-1 bg-pink-900/30 text-pink-300 rounded-full text-xs">
+                    {{ faq.get('category')?.value }}
+                  </span>
+                </div>
+
+                <div class="flex gap-2">
+                  <button (click)="openFAQModal(faq.value)"
+                    class="px-2 py-1 bg-blue-900/30 hover:bg-blue-900/50 text-blue-400 rounded text-xs">
+                    Editar
+                  </button>
+                  <button (click)="faqsArray.removeAt(i)"
+                    class="px-2 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded text-xs">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+
+              <p class="text-gray-300">{{ faq.get('answer')?.value }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Ministerios -->
+  <div *ngIf="showMinistryModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+    <div
+      class="bg-gray-900 rounded-xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-800 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">
+          {{ currentMinistry?.id ? 'Editar Ministerio' : 'Nuevo Ministerio' }}
+        </h3>
+        <button (click)="closeMinistryModal()" class="text-gray-400 hover:text-white text-xl">
+          ✕
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveMinistry()" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Columna Izquierda -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Nombre *</label>
+              <input type="text" [(ngModel)]="currentMinistry.name" [ngModelOptions]="{standalone: true}"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white" required>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Descripción *</label>
+              <textarea [(ngModel)]="currentMinistry.description" [ngModelOptions]="{standalone: true}" rows="4"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white" required></textarea>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Ícono *</label>
+              <div class="grid grid-cols-6 gap-2">
+                <button *ngFor="let icon of ministryIcons" type="button"
+                  [class.bg-indigo-600]="currentMinistry.icon === icon.value"
+                  [class.bg-gray-800]="currentMinistry.icon !== icon.value" (click)="currentMinistry.icon = icon.value"
+                  class="p-3 rounded-lg transition-colors text-2xl">
+                  {{ icon.value }}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Imagen URL</label>
+              <input type="text" [(ngModel)]="currentMinistry.image" [ngModelOptions]="{standalone: true}"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white"
+                placeholder="assets/imagenes/ministerio-x.jpg">
+            </div>
+          </div>
+
+          <!-- Columna Derecha -->
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-gray-300 mb-2 text-sm font-medium">Estado *</label>
+                <select [(ngModel)]="currentMinistry.status" [ngModelOptions]="{standalone: true}"
+                  class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+                  <option *ngFor="let status of ministryStatuses" [value]="status.value">
+                    {{ status.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-gray-300 mb-2 text-sm font-medium">Voluntarios</label>
+                <input type="number" [(ngModel)]="currentMinistry.volunteerCount" [ngModelOptions]="{standalone: true}"
+                  class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Horario</label>
+              <input type="text" [(ngModel)]="currentMinistry.schedule" [ngModelOptions]="{standalone: true}"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white"
+                placeholder="Ej: Miércoles 19:00, Sábados 10:00">
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Líder/Responsable</label>
+              <input type="text" [(ngModel)]="currentMinistry.leader" [ngModelOptions]="{standalone: true}"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+            </div>
+
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Email de Contacto</label>
+              <input type="email" [(ngModel)]="currentMinistry.contactEmail" [ngModelOptions]="{standalone: true}"
+                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white">
+            </div>
+
+            <!-- Colores -->
+            <div>
+              <label class="block text-gray-300 mb-2 text-sm font-medium">Colores del Ministerio</label>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-300 mb-2 text-xs font-medium">Desde</label>
+                  <div class="flex gap-2">
+                    <input type="color" [(ngModel)]="currentMinistry.colorFrom" [ngModelOptions]="{standalone: true}"
+                      class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                    <input type="text" [(ngModel)]="currentMinistry.colorFrom" [ngModelOptions]="{standalone: true}"
+                      class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-gray-300 mb-2 text-xs font-medium">Hasta</label>
+                  <div class="flex gap-2">
+                    <input type="color" [(ngModel)]="currentMinistry.colorTo" [ngModelOptions]="{standalone: true}"
+                      class="w-10 h-10 rounded-lg cursor-pointer border border-gray-600">
+                    <input type="text" [(ngModel)]="currentMinistry.colorTo" [ngModelOptions]="{standalone: true}"
+                      class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <label class="block text-gray-300 mb-2 text-xs font-medium">Presets rápidos:</label>
+                <div class="flex flex-wrap gap-2">
+                  <button *ngFor="let preset of colorPresets; let i = index" type="button"
+                    (click)="applyColorPreset('ministry', i)"
+                    class="px-2 py-1 text-xs rounded border border-gray-600 hover:border-purple-500 transition-colors text-white"
+                    [style.background]="'linear-gradient(90deg, ' + preset.from + ', ' + preset.to + ')'">
+                    {{ preset.name }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Características y Requisitos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Características</label>
+            <div class="space-y-2">
+              <div *ngFor="let feature of featureOptions" class="flex items-center gap-2">
+                <input type="checkbox" [checked]="currentMinistry.features?.includes(feature)"
+                  (change)="toggleFeature(feature, $any($event.target).checked)" class="rounded">
+                <span class="text-gray-300 text-sm">{{ feature }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 mb-2 text-sm font-medium">Requisitos</label>
+            <div class="space-y-2">
+              <div *ngFor="let requirement of requirementOptions" class="flex items-center gap-2">
+                <input type="checkbox" [checked]="currentMinistry.requirements?.includes(requirement)"
+                  (change)="toggleRequirement(requirement, $any($event.target).checked)" class="rounded">
+                <span class="text-gray-300 text-sm">{{ requirement }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex justify-end gap-4 pt-6 border-t border-gray-800">
+          <button type="button" (click)="closeMinistryModal()"
+            class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-300">
+            💾 Guardar Ministerio
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast de notificación -->
+  <div *ngIf="showToast" [class.bg-gradient-to-r]="true" [class.from-green-600]="toastType === 'success'"
+    [class.to-emerald-600]="toastType === 'success'" [class.from-red-600]="toastType === 'error'"
+    [class.to-rose-600]="toastType === 'error'" [class.from-blue-600]="toastType === 'info'"
+    [class.to-cyan-600]="toastType === 'info'" class="fixed bottom-4 right-4 z-50 animate-slideIn">
+    <div class="text-white px-6 py-4 rounded-lg shadow-xl border border-white/20 flex items-center gap-3">
+      <span class="text-xl">
+        {{ toastType === 'success' ? '✅' : toastType === 'error' ? '❌' : 'ℹ️' }}
+      </span>
+      <div>
+        <p class="font-medium">{{ toastMessage }}</p>
+      </div>
+      <button type="button" (click)="showToast = false" class="ml-4 text-white/80 hover:text-white">
+        <span class="text-xl">×</span>
+      </button>
+    </div>
+  </div>
+</div>

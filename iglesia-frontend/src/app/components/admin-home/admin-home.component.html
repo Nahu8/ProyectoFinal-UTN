@@ -1,0 +1,432 @@
+<div class="space-y-8">
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-white mb-2">🏠 Editar Página de Inicio</h2>
+        <div class="text-sm text-gray-400">
+            <span class="px-3 py-1 bg-indigo-900 rounded-full">Resumen Home</span>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">🎬</span>
+            </div>
+            <h3 class="text-xl font-semibold text-white">Sección Hero</h3>
+        </div>
+
+        <form [formGroup]="homeForm" (ngSubmit)="saveHome()" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-300 mb-2 text-sm font-medium">Título Principal *</label>
+                        <input type="text" formControlName="heroTitle"
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <!-- Botón 1 -->
+                    <div class="space-y-4 p-4 bg-gray-800/30 rounded-lg border border-gray-700">
+                        <h4 class="text-white font-medium">Primer Botón</h4>
+                        <div>
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Texto del Botón 1 *</label>
+                            <input type="text" formControlName="heroButton1Text"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Ej: Ver más">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Enlace del Botón 1 *</label>
+                            <input type="text" formControlName="heroButton1Link"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Ej: /ministerios">
+                        </div>
+                    </div>
+
+                    <!-- Botón 2 -->
+                    <div class="space-y-4 p-4 bg-gray-800/30 rounded-lg border border-gray-700">
+                        <h4 class="text-white font-medium">Segundo Botón</h4>
+                        <div>
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Texto del Botón 2 *</label>
+                            <input type="text" formControlName="heroButton2Text"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Ej: Contactar">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">Enlace del Botón 2 *</label>
+                            <input type="text" formControlName="heroButton2Link"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="Ej: /contacto">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-gray-300 mb-2 text-sm font-medium">Video de Fondo</label>
+                        <div class="border-2 border-dashed border-gray-700 rounded-lg p-4 bg-gray-800/50">
+                            <div class="relative">
+                                <input type="file" id="heroVideoInput" (change)="onHeroVideoSelected($event)"
+                                    accept="video/*"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <label for="heroVideoInput"
+                                    class="w-full px-6 py-4 bg-gradient-to-r from-indigo-900/80 to-purple-900/80 hover:from-indigo-900 hover:to-purple-900 border border-indigo-700/50 rounded-lg flex flex-col items-center justify-center gap-2 text-white cursor-pointer transition-all hover:scale-[1.02]">
+                                    <span class="text-2xl">📁</span>
+                                    <span class="font-medium">Seleccionar archivo de video</span>
+                                    <span class="text-gray-300 text-xs">MP4, WebM, OGG | Máx: 10MB</span>
+                                </label>
+                            </div>
+
+                            <div *ngIf="videoPreview" class="mt-4">
+                                <video [src]="videoPreview" controls class="rounded-lg w-full max-h-64"></video>
+                                <button type="button" (click)="clearVideo()"
+                                    class="mt-3 px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+                                    <span>🗑️</span> Eliminar Video
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-gray-500 text-xs mt-2">Formatos: MP4, WebM, OGG | Máx: 10MB</p>
+                        <div class="mt-4">
+                            <label class="block text-gray-300 mb-2 text-sm font-medium">O usar URL:</label>
+                            <input type="text" formControlName="heroVideoUrl"
+                                class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                placeholder="assets/videos/video.mp4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end pt-4 border-t border-gray-800">
+                <button type="submit" [disabled]="!homeForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Hero
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Celebrations Section -->
+    <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">🎉</span>
+            </div>
+            <h3 class="text-xl font-semibold text-white">Sección de Celebraciones</h3>
+        </div>
+
+        <form [formGroup]="celebrationsForm" (ngSubmit)="saveCelebrations()" class="space-y-6">
+            <div formArrayName="celebrations" class="space-y-6">
+                <div *ngFor="let celebration of celebrationsArray.controls; let i = index"
+                    class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-colors">
+                    <div [formGroupName]="i" class="space-y-6">
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-xs">{{
+                                    i + 1 }}</span>
+                                Celebración {{ i + 1 }}
+                            </h3>
+                            <button type="button" (click)="removeCelebration(i)"
+                                class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm font-medium transition-colors">
+                                Eliminar
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título *</label>
+                                    <input type="text" formControlName="title"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo</label>
+                                    <input type="text" formControlName="subtitle"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">ID del Video de YouTube
+                                        *</label>
+                                    <input type="text" formControlName="videoId"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                    <p class="text-gray-500 text-xs mt-2">Ejemplo: para
+                                        https://youtube.com/watch?v=ABC123, usa "ABC123"</p>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Tiempo de Inicio
+                                        (segundos)</label>
+                                    <input type="number" formControlName="startTime"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Descripción</label>
+                                    <textarea formControlName="description" rows="10"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button type="button" (click)="addCelebration()"
+                    class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <span>+</span> Agregar Celebración
+                </button>
+                <button type="submit" [disabled]="!celebrationsForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Celebraciones
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Ministries Summary Section -->
+    <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">🎯</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white">Sección Ministerios (Resumen Home)</h3>
+                <p class="text-gray-400 text-sm mt-1">Esta sección aparece en la página de inicio</p>
+            </div>
+        </div>
+
+        <form [formGroup]="ministriesForm" (ngSubmit)="saveMinistries()" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título de la Sección *</label>
+                    <input type="text" formControlName="sectionTitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo de la Sección</label>
+                    <input type="text" formControlName="sectionSubtitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <div formArrayName="ministries" class="space-y-6">
+                <div *ngFor="let ministry of ministriesArray.controls; let i = index"
+                    class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-green-500/50 transition-colors">
+                    <div [formGroupName]="i" class="space-y-6">
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-xs">{{
+                                    i + 1 }}</span>
+                                Ministerio {{ i + 1 }}
+                            </h3>
+                            <button type="button" (click)="removeMinistry(i)"
+                                class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm font-medium transition-colors">
+                                Eliminar
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Nombre *</label>
+                                    <input type="text" formControlName="name"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Ministerio Escuela Bíblica">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Descripción</label>
+                                    <textarea formControlName="description" rows="6"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Ícono</label>
+                                    <select formControlName="icon"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                                        <option *ngFor="let icon of iconOptions" [value]="icon.value">{{ icon.label }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Imagen</label>
+                                    <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 bg-gray-800/30">
+                                        <input type="file"
+                                            (change)="onFileSelected($event, 'image', ministriesArray, i)"
+                                            accept="image/*" class="w-full text-gray-300 mb-3">
+
+                                        <div *ngIf="getMinistryImagePreview(i)" class="mt-4">
+                                            <div class="relative">
+                                                <img [src]="getMinistryImagePreview(i)" alt="Preview"
+                                                    class="rounded-lg w-full h-48 object-cover">
+                                                <div class="absolute bottom-3 right-3">
+                                                    <button type="button"
+                                                        (click)="ministriesArray.at(i).get('image')?.setValue('')"
+                                                        class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition-colors">
+                                                        Quitar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div *ngIf="!getMinistryImagePreview(i)" class="text-center py-8 text-gray-500">
+                                            <span class="text-3xl mb-2 block">🖼️</span>
+                                            <p class="text-sm">Ninguna imagen seleccionada</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-500 text-xs mt-2">Formatos: JPG, PNG, GIF, WebP | Máx: 5MB</p>
+
+                                    <div class="mt-4">
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">O usar URL:</label>
+                                        <input type="text" formControlName="image"
+                                            class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                            placeholder="assets/imagenes/ministerio-1.jpg">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button type="button" (click)="addMinistry()"
+                    class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <span>+</span> Agregar Ministerio
+                </button>
+                <button type="submit" [disabled]="!ministriesForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Ministerios
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Meeting Days Summary Section -->
+    <div class="bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white">📅</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white">Sección Días de Reunión (Resumen Home)</h3>
+                <p class="text-gray-400 text-sm mt-1">Esta sección aparece en la página de inicio</p>
+            </div>
+        </div>
+
+        <form [formGroup]="meetingDaysForm" (ngSubmit)="saveMeetingDays()" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título de la Sección *</label>
+                    <input type="text" formControlName="sectionTitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+                <div>
+                    <label class="block text-gray-300 mb-2 text-sm font-medium">Subtítulo de la Sección</label>
+                    <input type="text" formControlName="sectionSubtitle"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+
+            <div formArrayName="meetings" class="space-y-6">
+                <div *ngFor="let meeting of meetingsArray.controls; let i = index"
+                    class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-blue-500/50 transition-colors">
+                    <div [formGroupName]="i" class="space-y-6">
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-700">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs">{{
+                                    i + 1 }}</span>
+                                Reunión {{ i + 1 }}
+                            </h3>
+                            <button type="button" (click)="removeMeeting(i)"
+                                class="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-sm font-medium transition-colors">
+                                Eliminar
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Día *</label>
+                                    <input type="text" formControlName="day"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Miércoles">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Título *</label>
+                                    <input type="text" formControlName="title"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: SLR">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Hora *</label>
+                                    <input type="text" formControlName="time"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: 19:00">
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-300 mb-2 text-sm font-medium">Nota</label>
+                                    <input type="text" formControlName="note"
+                                        class="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        placeholder="Ej: Servicio y estudio">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Color desde</label>
+                                        <div class="flex gap-3">
+                                            <input type="color" formControlName="colorFrom"
+                                                class="w-12 h-12 rounded-lg cursor-pointer border border-gray-600">
+                                            <input type="text" formControlName="colorFrom"
+                                                class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-300 mb-2 text-sm font-medium">Color hasta</label>
+                                        <div class="flex gap-3">
+                                            <input type="color" formControlName="colorTo"
+                                                class="w-12 h-12 rounded-lg cursor-pointer border border-gray-600">
+                                            <input type="text" formControlName="colorTo"
+                                                class="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 border-t border-gray-800">
+                <button type="button" (click)="addMeeting()"
+                    class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <span>+</span> Agregar Reunión
+                </button>
+                <button type="submit" [disabled]="!meetingDaysForm.valid"
+                    class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 disabled:opacity-50 flex items-center gap-2">
+                    💾 Guardar Días de Reunión
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast de notificación -->
+    <div *ngIf="showToast" class="fixed bottom-4 right-4 z-50 animate-slideIn">
+        <div
+            class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-lg shadow-xl border border-green-500/30 flex items-center gap-3">
+            <span class="text-xl">✅</span>
+            <div>
+                <p class="font-medium">{{ toastMessage || 'Guardado exitosamente' }}</p>
+                <p class="text-green-100 text-sm">Los cambios han sido actualizados</p>
+            </div>
+            <button type="button" (click)="showToast = false" class="ml-4 text-green-100 hover:text-white">
+                <span class="text-xl">×</span>
+            </button>
+        </div>
+    </div>
+</div>

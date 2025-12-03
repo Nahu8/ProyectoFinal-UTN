@@ -1,0 +1,41 @@
+<header class="fixed top-0 left-0 right-0 z-50 p-6 bg-transparent border-b border-transparent">
+  <div class="container mx-auto flex justify-between items-center">
+    <div class="text-2xl font-bold text-white tracking-wide">
+      <a routerLink="/" class="hover:text-gray-300 transition-colors inline-flex items-center">
+        <div class="relative h-10 w-10 md:h-12 md:w-12 lg:h-16 lg:w-16 rounded-full overflow-hidden">
+          <!-- Two overlapping images: 'El Vive' and 'Tumba' -->
+          <img src="/assets/imagenes/elvive.png" alt="El Vive" class="absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-1000" [class.opacity-0]="!showFirstLogo">
+          <img src="/assets/imagenes/tumba.png" alt="Logo Blanco" class="absolute inset-0 w-full h-full object-contain object-center transition-opacity duration-1000" [class.opacity-0]="showFirstLogo">
+        </div>
+      </a>
+    </div>
+    <nav class="hidden md:flex gap-8">
+      <a routerLink="/" routerLinkActive="text-white font-semibold" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">
+        Inicio
+      </a>
+      <a routerLink="/dias-reunion" routerLinkActive="text-white font-semibold" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">
+        Días de Reunión
+      </a>
+      <a routerLink="/ministerios" routerLinkActive="text-white font-semibold" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">
+        Ministerios
+      </a>
+      <a routerLink="/contacto" routerLinkActive="text-white font-semibold" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">
+        Contacto
+      </a>
+    </nav>
+    <button class="md:hidden text-white" (click)="toggleMenu()">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+  </div>
+  <!-- Mobile Menu -->
+  <div *ngIf="isMenuOpen" class="md:hidden bg-black/80 border-t border-transparent">
+    <nav class="flex flex-col p-4 gap-4">
+      <a routerLink="/" (click)="toggleMenu()" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">Inicio</a>
+      <a routerLink="/dias-reunion" (click)="toggleMenu()" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">Días de Reunión</a>
+      <a routerLink="/ministerios" (click)="toggleMenu()" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">Ministerios</a>
+      <a routerLink="/contacto" (click)="toggleMenu()" class="text-gray-100 hover:text-white transition-colors uppercase text-sm">Contacto</a>
+    </nav>
+  </div>
+</header>
